@@ -1,0 +1,35 @@
+name: katastr_p6
+description: "Katastr Praha 6 - nahlížení do katastru nemovitostí"
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.10.7
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+
+  # Map
+  flutter_map: ^8.2.2
+  latlong2: ^0.9.1
+
+  # HTTP
+  http: ^1.2.0
+
+  # GPS
+  geolocator: ^13.0.2
+  permission_handler: ^11.3.1
+
+  # State management
+  provider: ^6.1.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
