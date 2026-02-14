@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../config/constants.dart';
+import '../models/parcel.dart';
 
 class ApiClient {
   final String baseUrl;
@@ -24,6 +25,26 @@ class ApiClient {
       return jsonDecode(response.body) as Map<String, dynamic>;
     }
     throw Exception('Health check failed: ${response.statusCode}');
+  }
+
+  /// Search parcels near a WGS-84 point (backend converts to S-JTSK).
+  Future<ParcelSearchResult> searchParcelsByPoint(
+    double lat,
+    double lon, {
+    int radius = 5,
+  }) async {
+    final uri = Uri.parse(
+      '$baseUrl/api/parcels/polygon?lat=$lat&lon=$lon&radius=$radius',
+    );
+    final response = await _client.get(uri);
+    if (response.statusCode == 200) {
+      return ParcelSearchResult.fromJson(
+        jsonDecode(response.body) as Map<String, dynamic>,
+      );
+    }
+    throw Exception(
+      'Parcel search failed (${response.statusCode})',
+    );
   }
 
   void dispose() {
