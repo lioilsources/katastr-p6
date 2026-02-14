@@ -7,6 +7,8 @@ require (
 	github.com/go-chi/cors v1.2.2
 	github.com/joho/godotenv v1.5.1
 	github.com/redis/go-redis/v9 v9.17.3
+	github.com/wroge/wgs84/v2 v2.0.0-alpha.13
+	golang.org/x/time v0.14.0
 )
 
 require (

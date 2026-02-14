@@ -14,6 +14,7 @@ import (
 
 	"katastr-p6/backend/internal/cache"
 	"katastr-p6/backend/internal/config"
+	"katastr-p6/backend/internal/cuzk"
 	"katastr-p6/backend/internal/handler"
 	"katastr-p6/backend/internal/middleware"
 )
@@ -37,7 +38,18 @@ func main() {
 		}
 	}
 
+	// CUZK API client
+	cuzkClient := cuzk.NewClient(cfg.CUZKBaseURL, cfg.CUZKAPIKey)
+	if cfg.CUZKAPIKey == "" {
+		slog.Warn("CUZK_API_KEY not set, API calls to CUZK will fail")
+	}
+
+	// Handlers
 	healthHandler := handler.NewHealthHandler(redisCache)
+	parcelHandler := handler.NewParcelHandler(cuzkClient, redisCache)
+	buildingHandler := handler.NewBuildingHandler(cuzkClient, redisCache)
+	unitHandler := handler.NewUnitHandler(cuzkClient, redisCache)
+	proceedingHandler := handler.NewProceedingHandler(cuzkClient, redisCache)
 
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
@@ -46,6 +58,23 @@ func main() {
 	r.Get("/health", healthHandler.Health)
 	r.Route("/api", func(r chi.Router) {
 		r.Get("/version", handler.Version)
+
+		// Parcels
+		r.Get("/parcels/search", parcelHandler.Search)
+		r.Get("/parcels/polygon", parcelHandler.Polygon)
+		r.Get("/parcels/neighbors/{id}", parcelHandler.Neighbors)
+		r.Get("/parcels/{id}", parcelHandler.Get)
+
+		// Buildings
+		r.Get("/buildings/search", buildingHandler.Search)
+		r.Get("/buildings/{id}", buildingHandler.Get)
+
+		// Units
+		r.Get("/units/search", unitHandler.Search)
+		r.Get("/units/{id}", unitHandler.Get)
+
+		// Proceedings
+		r.Get("/proceedings/{id}", proceedingHandler.Get)
 	})
 
 	srv := &http.Server{
